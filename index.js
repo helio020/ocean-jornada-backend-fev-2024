@@ -1,36 +1,59 @@
 const express = require("express");
-const app = express();
+const { MongoClient } = require("mongodb");
 
-app.get("/", function (req, res) {
-  res.send("Hello World");
-});
+const dbUrl =
+  "mongodb+srv://heliorpjunior116:rJXctlaVfe2wlsEt@cluster0.dvjajhv.mongodb.net";
+const dbName = "OceanJornadaBackendFev2024";
 
-app.get("/oi", function (req, res) {
-  res.send("Olá mundo!");
-});
+async function main() {
+  const client = new MongoClient(dbUrl);
 
-const lista = ["Rick Sanchez", "Morty Smith", "Summer Smith"];
+  console.log("Conectando ao banco de dados...");
 
-app.get("/item", function (req, res) {
-  res.json(lista);
-});
+  await client.connect();
 
-app.get("/item/:id", function (req, res) {
-  const { id } = req.params;
+  console.log("Banco de dados conectado com sucesso!");
 
-  const item = lista[id];
+  const app = express();
 
-  res.json(item);
-});
+  app.get("/", function (req, res) {
+    res.send("Hello World");
+  });
 
-app.use(express.json());
+  app.get("/oi", function (req, res) {
+    res.send("Olá mundo!");
+  });
 
-app.post("/item", function (req, res) {
-  const { nome } = req.body;
+  const lista = ["Rick Sanchez", "Morty Smith", "Summer Smith"];
 
-  lista.push(nome);
+  const db = client.db(dbName);
+  const collection = db.collection("items");
 
-  res.status(201).json({ mensagem: "Item adicionado com sucesso!" });
-});
+  app.get("/item", async function (req, res) {
+    const items = await collection.find().toArray();
 
-app.listen(3000);
+    res.json(items);
+  });
+
+  app.get("/item/:id", function (req, res) {
+    const { id } = req.params;
+
+    const item = lista[id];
+
+    res.json(item);
+  });
+
+  app.use(express.json());
+
+  app.post("/item", function (req, res) {
+    const { nome } = req.body;
+
+    lista.push(nome);
+
+    res.status(201).json({ mensagem: "Item adicionado com sucesso!" });
+  });
+
+  app.listen(3000);
+}
+
+main();
