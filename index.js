@@ -16,15 +16,7 @@ async function main() {
 
   const app = express();
 
-  app.get("/", function (req, res) {
-    res.send("Hello World");
-  });
-
-  app.get("/oi", function (req, res) {
-    res.send("Olá mundo!");
-  });
-
-  const lista = ["Rick Sanchez", "Morty Smith", "Summer Smith"];
+  app.use(express.json());
 
   const db = client.db(dbName);
   const collection = db.collection("items");
@@ -45,8 +37,6 @@ async function main() {
     res.json(item);
   });
 
-  app.use(express.json());
-
   app.post("/item", async function (req, res) {
     const item = req.body;
 
@@ -63,6 +53,14 @@ async function main() {
     await collection.updateOne({ _id: new ObjectId(id) }, { $set: novoItem });
 
     res.send("Item atualizado com sucesso!");
+  });
+
+  app.delete("/item/:id", async function (req, res) {
+    const id = req.params.id;
+
+    await collection.deleteOne({ _id: new ObjectId(id) });
+
+    res.send("Item removido com sucesso!");
   });
 
   app.listen(3000);
