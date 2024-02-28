@@ -18,6 +18,10 @@ async function main() {
 
   app.use(express.json());
 
+  app.get("/", function (req, res) {
+    res.send("Hello World!");
+  });
+
   const db = client.db(dbName);
   const collection = db.collection("items");
 
