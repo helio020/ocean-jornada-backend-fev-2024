@@ -47,12 +47,22 @@ async function main() {
 
   app.use(express.json());
 
-  app.post("/item", function (req, res) {
-    const { nome } = req.body;
+  app.post("/item", async function (req, res) {
+    const item = req.body;
 
-    lista.push(nome);
+    await collection.insertOne(item);
 
-    res.status(201).json({ mensagem: "Item adicionado com sucesso!" });
+    res.status(201).send(item);
+  });
+
+  app.put("/item/:id", async function (req, res) {
+    const id = req.params.id;
+
+    const novoItem = req.body;
+
+    await collection.updateOne({ _id: new ObjectId(id) }, { $set: novoItem });
+
+    res.send("Item atualizado com sucesso!");
   });
 
   app.listen(3000);
